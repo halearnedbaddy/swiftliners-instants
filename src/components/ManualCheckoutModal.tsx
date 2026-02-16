@@ -68,7 +68,7 @@ export function ManualCheckoutModal({ isOpen, onClose, product, storeSlug, selle
           .select('seller_id')
           .eq('slug', storeSlug)
           .maybeSingle();
-        sid = store?.seller_id;
+        sid = (store as any)?.user_id;
       }
 
       if (sid) {
