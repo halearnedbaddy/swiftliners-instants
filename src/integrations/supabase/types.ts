@@ -18,7 +18,7 @@ export type Database = {
         Row: {
           action: string
           admin_id: string
-          created_at: string | null
+          created_at: string
           details: Json | null
           id: string
           ip_address: string | null
@@ -28,7 +28,7 @@ export type Database = {
         Insert: {
           action: string
           admin_id: string
-          created_at?: string | null
+          created_at?: string
           details?: Json | null
           id?: string
           ip_address?: string | null
@@ -38,7 +38,7 @@ export type Database = {
         Update: {
           action?: string
           admin_id?: string
-          created_at?: string | null
+          created_at?: string
           details?: Json | null
           id?: string
           ip_address?: string | null
@@ -50,7 +50,7 @@ export type Database = {
       audit_logs: {
         Row: {
           action: string
-          created_at: string | null
+          created_at: string
           details: Json | null
           entity: string
           entity_id: string | null
@@ -62,7 +62,7 @@ export type Database = {
         }
         Insert: {
           action: string
-          created_at?: string | null
+          created_at?: string
           details?: Json | null
           entity: string
           entity_id?: string | null
@@ -74,7 +74,7 @@ export type Database = {
         }
         Update: {
           action?: string
-          created_at?: string | null
+          created_at?: string
           details?: Json | null
           entity?: string
           entity_id?: string | null
@@ -88,7 +88,8 @@ export type Database = {
       }
       dispute_messages: {
         Row: {
-          created_at: string | null
+          attachments: string[] | null
+          created_at: string
           dispute_id: string
           id: string
           is_admin: boolean | null
@@ -96,7 +97,8 @@ export type Database = {
           sender_id: string
         }
         Insert: {
-          created_at?: string | null
+          attachments?: string[] | null
+          created_at?: string
           dispute_id: string
           id?: string
           is_admin?: boolean | null
@@ -104,7 +106,8 @@ export type Database = {
           sender_id: string
         }
         Update: {
-          created_at?: string | null
+          attachments?: string[] | null
+          created_at?: string
           dispute_id?: string
           id?: string
           is_admin?: boolean | null
@@ -123,366 +126,338 @@ export type Database = {
       }
       disputes: {
         Row: {
-          created_at: string | null
+          created_at: string
+          deadline: string | null
+          description: string | null
+          evidence: string[] | null
           id: string
-          opened_by: string
+          opened_by_id: string
           reason: string
           resolution: string | null
           resolved_at: string | null
-          resolved_by: string | null
-          status: string | null
+          resolved_by_id: string | null
+          status: Database["public"]["Enums"]["dispute_status"] | null
           transaction_id: string
-          updated_at: string | null
+          updated_at: string
         }
         Insert: {
-          created_at?: string | null
+          created_at?: string
+          deadline?: string | null
+          description?: string | null
+          evidence?: string[] | null
           id?: string
-          opened_by: string
+          opened_by_id: string
           reason: string
           resolution?: string | null
           resolved_at?: string | null
-          resolved_by?: string | null
-          status?: string | null
+          resolved_by_id?: string | null
+          status?: Database["public"]["Enums"]["dispute_status"] | null
           transaction_id: string
-          updated_at?: string | null
+          updated_at?: string
         }
         Update: {
-          created_at?: string | null
+          created_at?: string
+          deadline?: string | null
+          description?: string | null
+          evidence?: string[] | null
           id?: string
-          opened_by?: string
+          opened_by_id?: string
           reason?: string
           resolution?: string | null
           resolved_at?: string | null
-          resolved_by?: string | null
-          status?: string | null
+          resolved_by_id?: string | null
+          status?: Database["public"]["Enums"]["dispute_status"] | null
           transaction_id?: string
-          updated_at?: string | null
+          updated_at?: string
         }
-        Relationships: []
-      }
-      escrow_wallets: {
-        Row: {
-          auto_release_date: string | null
-          created_at: string | null
-          currency: string | null
-          gross_amount: number
-          id: string
-          locked_at: string | null
-          net_amount: number
-          order_id: string | null
-          platform_fee: number
-          released_at: string | null
-          released_by: string | null
-          requires_buyer_confirmation: boolean | null
-          status: string | null
-          updated_at: string | null
-          wallet_ref: string
-        }
-        Insert: {
-          auto_release_date?: string | null
-          created_at?: string | null
-          currency?: string | null
-          gross_amount: number
-          id?: string
-          locked_at?: string | null
-          net_amount: number
-          order_id?: string | null
-          platform_fee: number
-          released_at?: string | null
-          released_by?: string | null
-          requires_buyer_confirmation?: boolean | null
-          status?: string | null
-          updated_at?: string | null
-          wallet_ref: string
-        }
-        Update: {
-          auto_release_date?: string | null
-          created_at?: string | null
-          currency?: string | null
-          gross_amount?: number
-          id?: string
-          locked_at?: string | null
-          net_amount?: number
-          order_id?: string | null
-          platform_fee?: number
-          released_at?: string | null
-          released_by?: string | null
-          requires_buyer_confirmation?: boolean | null
-          status?: string | null
-          updated_at?: string | null
-          wallet_ref?: string
-        }
-        Relationships: []
-      }
-      ledger_entries: {
-        Row: {
-          amount: number
-          created_at: string | null
-          credit_account: string
-          credit_balance_after: number | null
-          credit_balance_before: number | null
-          debit_account: string
-          debit_balance_after: number | null
-          debit_balance_before: number | null
-          description: string | null
-          entry_ref: string
-          id: string
-          metadata: Json | null
-          order_id: string | null
-          transaction_type: string
-        }
-        Insert: {
-          amount: number
-          created_at?: string | null
-          credit_account: string
-          credit_balance_after?: number | null
-          credit_balance_before?: number | null
-          debit_account: string
-          debit_balance_after?: number | null
-          debit_balance_before?: number | null
-          description?: string | null
-          entry_ref: string
-          id?: string
-          metadata?: Json | null
-          order_id?: string | null
-          transaction_type: string
-        }
-        Update: {
-          amount?: number
-          created_at?: string | null
-          credit_account?: string
-          credit_balance_after?: number | null
-          credit_balance_before?: number | null
-          debit_account?: string
-          debit_balance_after?: number | null
-          debit_balance_before?: number | null
-          description?: string | null
-          entry_ref?: string
-          id?: string
-          metadata?: Json | null
-          order_id?: string | null
-          transaction_type?: string
-        }
-        Relationships: []
-      }
-      mpesa_transactions: {
-        Row: {
-          amount: number | null
-          callback_data: Json | null
-          checkout_request_id: string | null
-          completed_at: string | null
-          conversation_id: string | null
-          created_at: string | null
-          id: string
-          merchant_request_id: string | null
-          mpesa_receipt_number: string | null
-          order_id: string | null
-          phone_number: string | null
-          raw_request: Json | null
-          raw_response: Json | null
-          result_code: string | null
-          result_desc: string | null
-          status: string | null
-          transaction_type: string | null
-        }
-        Insert: {
-          amount?: number | null
-          callback_data?: Json | null
-          checkout_request_id?: string | null
-          completed_at?: string | null
-          conversation_id?: string | null
-          created_at?: string | null
-          id?: string
-          merchant_request_id?: string | null
-          mpesa_receipt_number?: string | null
-          order_id?: string | null
-          phone_number?: string | null
-          raw_request?: Json | null
-          raw_response?: Json | null
-          result_code?: string | null
-          result_desc?: string | null
-          status?: string | null
-          transaction_type?: string | null
-        }
-        Update: {
-          amount?: number | null
-          callback_data?: Json | null
-          checkout_request_id?: string | null
-          completed_at?: string | null
-          conversation_id?: string | null
-          created_at?: string | null
-          id?: string
-          merchant_request_id?: string | null
-          mpesa_receipt_number?: string | null
-          order_id?: string | null
-          phone_number?: string | null
-          raw_request?: Json | null
-          raw_response?: Json | null
-          result_code?: string | null
-          result_desc?: string | null
-          status?: string | null
-          transaction_type?: string | null
-        }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "disputes_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: true
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       notifications: {
         Row: {
-          created_at: string | null
+          created_at: string
           data: Json | null
           id: string
           is_read: boolean | null
           message: string
           read_at: string | null
           title: string
-          type: string
+          type: Database["public"]["Enums"]["notification_type"]
           user_id: string
         }
         Insert: {
-          created_at?: string | null
+          created_at?: string
           data?: Json | null
           id?: string
           is_read?: boolean | null
           message: string
           read_at?: string | null
           title: string
-          type: string
+          type: Database["public"]["Enums"]["notification_type"]
           user_id: string
         }
         Update: {
-          created_at?: string | null
+          created_at?: string
           data?: Json | null
           id?: string
           is_read?: boolean | null
           message?: string
           read_at?: string | null
           title?: string
-          type?: string
+          type?: Database["public"]["Enums"]["notification_type"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      otps: {
+        Row: {
+          attempts: number | null
+          code: string
+          created_at: string
+          expires_at: string
+          id: string
+          is_used: boolean | null
+          max_attempts: number | null
+          phone: string
+          purpose: string
+          used_at: string | null
+        }
+        Insert: {
+          attempts?: number | null
+          code: string
+          created_at?: string
+          expires_at: string
+          id?: string
+          is_used?: boolean | null
+          max_attempts?: number | null
+          phone: string
+          purpose: string
+          used_at?: string | null
+        }
+        Update: {
+          attempts?: number | null
+          code?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          is_used?: boolean | null
+          max_attempts?: number | null
+          phone?: string
+          purpose?: string
+          used_at?: string | null
         }
         Relationships: []
       }
       payment_links: {
         Row: {
-          amount: number
-          created_at: string | null
-          currency: string | null
-          description: string | null
-          expires_at: string | null
+          base_price_usd: number | null
+          clicks: number | null
+          created_at: string
+          currency: string
+          customer_phone: string | null
+          expiry_date: string | null
           id: string
-          product_id: string | null
+          images: string[] | null
+          original_price: number | null
+          price: number
+          product_description: string | null
+          product_name: string
+          purchases: number | null
+          quantity: number | null
+          revenue: number | null
+          seller_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          base_price_usd?: number | null
+          clicks?: number | null
+          created_at?: string
+          currency?: string
+          customer_phone?: string | null
+          expiry_date?: string | null
+          id: string
+          images?: string[] | null
+          original_price?: number | null
+          price: number
+          product_description?: string | null
+          product_name: string
+          purchases?: number | null
+          quantity?: number | null
+          revenue?: number | null
+          seller_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          base_price_usd?: number | null
+          clicks?: number | null
+          created_at?: string
+          currency?: string
+          customer_phone?: string | null
+          expiry_date?: string | null
+          id?: string
+          images?: string[] | null
+          original_price?: number | null
+          price?: number
+          product_description?: string | null
+          product_name?: string
+          purchases?: number | null
+          quantity?: number | null
+          revenue?: number | null
+          seller_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      payment_methods: {
+        Row: {
+          account_name: string
+          account_number: string
+          created_at: string
+          id: string
+          is_active: boolean | null
+          is_default: boolean | null
+          provider: string
+          type: Database["public"]["Enums"]["payment_method_type"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_name: string
+          account_number: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          is_default?: boolean | null
+          provider: string
+          type: Database["public"]["Enums"]["payment_method_type"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_name?: string
+          account_number?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          is_default?: boolean | null
+          provider?: string
+          type?: Database["public"]["Enums"]["payment_method_type"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      payouts: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          platform_fee: number
           seller_id: string
           status: string | null
-          title: string
-          updated_at: string | null
+          transaction_id: string
         }
         Insert: {
           amount: number
-          created_at?: string | null
-          currency?: string | null
-          description?: string | null
-          expires_at?: string | null
+          created_at?: string
           id?: string
-          product_id?: string | null
+          platform_fee: number
           seller_id: string
           status?: string | null
-          title: string
-          updated_at?: string | null
+          transaction_id: string
         }
         Update: {
           amount?: number
-          created_at?: string | null
-          currency?: string | null
-          description?: string | null
-          expires_at?: string | null
+          created_at?: string
           id?: string
-          product_id?: string | null
+          platform_fee?: number
           seller_id?: string
           status?: string | null
-          title?: string
-          updated_at?: string | null
+          transaction_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "payment_links_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "products"
+            foreignKeyName: "payouts_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: true
+            referencedRelation: "transactions"
             referencedColumns: ["id"]
           },
         ]
       }
-      platform_accounts: {
-        Row: {
-          account_type: string
-          balance: number | null
-          created_at: string | null
-          currency: string | null
-          description: string | null
-          id: string
-          updated_at: string | null
-        }
-        Insert: {
-          account_type: string
-          balance?: number | null
-          created_at?: string | null
-          currency?: string | null
-          description?: string | null
-          id?: string
-          updated_at?: string | null
-        }
-        Update: {
-          account_type?: string
-          balance?: number | null
-          created_at?: string | null
-          currency?: string | null
-          description?: string | null
-          id?: string
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
       products: {
         Row: {
-          created_at: string | null
+          ai_confidence_score: number | null
+          availability_note: string | null
+          created_at: string
           currency: string | null
           description: string | null
+          extraction_warnings: string[] | null
           id: string
           images: string[] | null
           is_available: boolean | null
+          last_synced_at: string | null
+          missing_fields: string[] | null
           name: string
+          platform: Database["public"]["Enums"]["social_platform"] | null
           price: number | null
+          social_post_id: string | null
+          source: string | null
           status: Database["public"]["Enums"]["product_status"] | null
-          stock: number | null
           store_id: string
-          updated_at: string | null
+          updated_at: string
         }
         Insert: {
-          created_at?: string | null
+          ai_confidence_score?: number | null
+          availability_note?: string | null
+          created_at?: string
           currency?: string | null
           description?: string | null
+          extraction_warnings?: string[] | null
           id?: string
           images?: string[] | null
           is_available?: boolean | null
+          last_synced_at?: string | null
+          missing_fields?: string[] | null
           name: string
+          platform?: Database["public"]["Enums"]["social_platform"] | null
           price?: number | null
+          social_post_id?: string | null
+          source?: string | null
           status?: Database["public"]["Enums"]["product_status"] | null
-          stock?: number | null
           store_id: string
-          updated_at?: string | null
+          updated_at?: string
         }
         Update: {
-          created_at?: string | null
+          ai_confidence_score?: number | null
+          availability_note?: string | null
+          created_at?: string
           currency?: string | null
           description?: string | null
+          extraction_warnings?: string[] | null
           id?: string
           images?: string[] | null
           is_available?: boolean | null
+          last_synced_at?: string | null
+          missing_fields?: string[] | null
           name?: string
+          platform?: Database["public"]["Enums"]["social_platform"] | null
           price?: number | null
+          social_post_id?: string | null
+          source?: string | null
           status?: Database["public"]["Enums"]["product_status"] | null
-          stock?: number | null
           store_id?: string
-          updated_at?: string | null
+          updated_at?: string
         }
         Relationships: [
           {
@@ -500,84 +475,75 @@ export type Database = {
           avatar_url: string | null
           business_address: string | null
           business_name: string | null
-          created_at: string | null
+          created_at: string
           email: string | null
+          failed_login_attempts: number | null
           id: string
+          is_active: boolean | null
           is_verified: boolean | null
           last_login: string | null
+          locked_until: string | null
           name: string
           phone: string | null
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          account_status?: Database["public"]["Enums"]["account_status"] | null
-          avatar_url?: string | null
-          business_address?: string | null
-          business_name?: string | null
-          created_at?: string | null
-          email?: string | null
-          id?: string
-          is_verified?: boolean | null
-          last_login?: string | null
-          name: string
-          phone?: string | null
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          account_status?: Database["public"]["Enums"]["account_status"] | null
-          avatar_url?: string | null
-          business_address?: string | null
-          business_name?: string | null
-          created_at?: string | null
-          email?: string | null
-          id?: string
-          is_verified?: boolean | null
-          last_login?: string | null
-          name?: string
-          phone?: string | null
-          updated_at?: string | null
-          user_id?: string
-        }
-        Relationships: []
-      }
-      seller_profiles: {
-        Row: {
-          created_at: string | null
-          id: string
-          is_verified: boolean | null
           rating: number | null
+          signup_method: Database["public"]["Enums"]["signup_method"] | null
+          success_rate: number | null
           total_reviews: number | null
           total_sales: number | null
-          updated_at: string | null
+          updated_at: string
           user_id: string
         }
         Insert: {
-          created_at?: string | null
+          account_status?: Database["public"]["Enums"]["account_status"] | null
+          avatar_url?: string | null
+          business_address?: string | null
+          business_name?: string | null
+          created_at?: string
+          email?: string | null
+          failed_login_attempts?: number | null
           id?: string
+          is_active?: boolean | null
           is_verified?: boolean | null
+          last_login?: string | null
+          locked_until?: string | null
+          name: string
+          phone?: string | null
           rating?: number | null
+          signup_method?: Database["public"]["Enums"]["signup_method"] | null
+          success_rate?: number | null
           total_reviews?: number | null
           total_sales?: number | null
-          updated_at?: string | null
+          updated_at?: string
           user_id: string
         }
         Update: {
-          created_at?: string | null
+          account_status?: Database["public"]["Enums"]["account_status"] | null
+          avatar_url?: string | null
+          business_address?: string | null
+          business_name?: string | null
+          created_at?: string
+          email?: string | null
+          failed_login_attempts?: number | null
           id?: string
+          is_active?: boolean | null
           is_verified?: boolean | null
+          last_login?: string | null
+          locked_until?: string | null
+          name?: string
+          phone?: string | null
           rating?: number | null
+          signup_method?: Database["public"]["Enums"]["signup_method"] | null
+          success_rate?: number | null
           total_reviews?: number | null
           total_sales?: number | null
-          updated_at?: string | null
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
       }
       social_accounts: {
         Row: {
-          created_at: string | null
+          created_at: string
           id: string
           last_scanned_at: string | null
           page_id: string | null
@@ -585,10 +551,10 @@ export type Database = {
           platform: Database["public"]["Enums"]["social_platform"]
           scan_status: string | null
           store_id: string
-          updated_at: string | null
+          updated_at: string
         }
         Insert: {
-          created_at?: string | null
+          created_at?: string
           id?: string
           last_scanned_at?: string | null
           page_id?: string | null
@@ -596,10 +562,10 @@ export type Database = {
           platform: Database["public"]["Enums"]["social_platform"]
           scan_status?: string | null
           store_id: string
-          updated_at?: string | null
+          updated_at?: string
         }
         Update: {
-          created_at?: string | null
+          created_at?: string
           id?: string
           last_scanned_at?: string | null
           page_id?: string | null
@@ -607,7 +573,7 @@ export type Database = {
           platform?: Database["public"]["Enums"]["social_platform"]
           scan_status?: string | null
           store_id?: string
-          updated_at?: string | null
+          updated_at?: string
         }
         Relationships: [
           {
@@ -622,62 +588,111 @@ export type Database = {
       stores: {
         Row: {
           bio: string | null
-          created_at: string | null
+          created_at: string
           id: string
           logo: string | null
           name: string
-          seller_id: string
           slug: string
           status: Database["public"]["Enums"]["store_status"] | null
-          updated_at: string | null
+          updated_at: string
+          user_id: string
           visibility: string | null
         }
         Insert: {
           bio?: string | null
-          created_at?: string | null
+          created_at?: string
           id?: string
           logo?: string | null
           name: string
-          seller_id: string
           slug: string
           status?: Database["public"]["Enums"]["store_status"] | null
-          updated_at?: string | null
+          updated_at?: string
+          user_id: string
           visibility?: string | null
         }
         Update: {
           bio?: string | null
-          created_at?: string | null
+          created_at?: string
           id?: string
           logo?: string | null
           name?: string
-          seller_id?: string
           slug?: string
           status?: Database["public"]["Enums"]["store_status"] | null
-          updated_at?: string | null
+          updated_at?: string
+          user_id?: string
           visibility?: string | null
         }
         Relationships: []
+      }
+      sync_logs: {
+        Row: {
+          completed_at: string | null
+          errors: Json | null
+          id: string
+          posts_found: number | null
+          products_created: number | null
+          social_account_id: string | null
+          started_at: string
+          status: string
+          store_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          errors?: Json | null
+          id?: string
+          posts_found?: number | null
+          products_created?: number | null
+          social_account_id?: string | null
+          started_at?: string
+          status: string
+          store_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          errors?: Json | null
+          id?: string
+          posts_found?: number | null
+          products_created?: number | null
+          social_account_id?: string | null
+          started_at?: string
+          status?: string
+          store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sync_logs_social_account_id_fkey"
+            columns: ["social_account_id"]
+            isOneToOne: false
+            referencedRelation: "social_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sync_logs_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       transactions: {
         Row: {
           accepted_at: string | null
           amount: number
-          auto_release_at: string | null
           buyer_address: string | null
-          buyer_confirmed_at: string | null
           buyer_email: string | null
           buyer_id: string | null
           buyer_name: string | null
           buyer_phone: string | null
+          cancellation_reason: string | null
           cancelled_at: string | null
           completed_at: string | null
           courier_name: string | null
-          created_at: string | null
+          created_at: string
           currency: string | null
           delivered_at: string | null
           delivery_proof_urls: string[] | null
-          escrow_status: string | null
-          escrow_wallet_id: string | null
+          estimated_delivery_date: string | null
           expires_at: string | null
           id: string
           item_description: string | null
@@ -690,34 +705,35 @@ export type Database = {
           product_id: string | null
           quantity: number | null
           refunded_at: string | null
+          rejected_at: string | null
+          rejection_reason: string | null
           seller_id: string
           seller_payout: number | null
           shipped_at: string | null
+          shipping_notes: string | null
           status: Database["public"]["Enums"]["transaction_status"] | null
           tracking_number: string | null
-          updated_at: string | null
+          updated_at: string
         }
         Insert: {
           accepted_at?: string | null
           amount: number
-          auto_release_at?: string | null
           buyer_address?: string | null
-          buyer_confirmed_at?: string | null
           buyer_email?: string | null
           buyer_id?: string | null
           buyer_name?: string | null
           buyer_phone?: string | null
+          cancellation_reason?: string | null
           cancelled_at?: string | null
           completed_at?: string | null
           courier_name?: string | null
-          created_at?: string | null
+          created_at?: string
           currency?: string | null
           delivered_at?: string | null
           delivery_proof_urls?: string[] | null
-          escrow_status?: string | null
-          escrow_wallet_id?: string | null
+          estimated_delivery_date?: string | null
           expires_at?: string | null
-          id: string
+          id?: string
           item_description?: string | null
           item_images?: string[] | null
           item_name: string
@@ -728,32 +744,33 @@ export type Database = {
           product_id?: string | null
           quantity?: number | null
           refunded_at?: string | null
+          rejected_at?: string | null
+          rejection_reason?: string | null
           seller_id: string
           seller_payout?: number | null
           shipped_at?: string | null
+          shipping_notes?: string | null
           status?: Database["public"]["Enums"]["transaction_status"] | null
           tracking_number?: string | null
-          updated_at?: string | null
+          updated_at?: string
         }
         Update: {
           accepted_at?: string | null
           amount?: number
-          auto_release_at?: string | null
           buyer_address?: string | null
-          buyer_confirmed_at?: string | null
           buyer_email?: string | null
           buyer_id?: string | null
           buyer_name?: string | null
           buyer_phone?: string | null
+          cancellation_reason?: string | null
           cancelled_at?: string | null
           completed_at?: string | null
           courier_name?: string | null
-          created_at?: string | null
+          created_at?: string
           currency?: string | null
           delivered_at?: string | null
           delivery_proof_urls?: string[] | null
-          escrow_status?: string | null
-          escrow_wallet_id?: string | null
+          estimated_delivery_date?: string | null
           expires_at?: string | null
           id?: string
           item_description?: string | null
@@ -766,12 +783,15 @@ export type Database = {
           product_id?: string | null
           quantity?: number | null
           refunded_at?: string | null
+          rejected_at?: string | null
+          rejection_reason?: string | null
           seller_id?: string
           seller_payout?: number | null
           shipped_at?: string | null
+          shipping_notes?: string | null
           status?: Database["public"]["Enums"]["transaction_status"] | null
           tracking_number?: string | null
-          updated_at?: string | null
+          updated_at?: string
         }
         Relationships: [
           {
@@ -785,57 +805,21 @@ export type Database = {
       }
       user_roles: {
         Row: {
-          created_at: string | null
+          created_at: string
           id: string
           role: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Insert: {
-          created_at?: string | null
-          id?: string
-          role: Database["public"]["Enums"]["app_role"]
-          user_id: string
-        }
-        Update: {
-          created_at?: string | null
+          created_at?: string
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
-          user_id?: string
-        }
-        Relationships: []
-      }
-      wallet_transactions: {
-        Row: {
-          amount: number
-          created_at: string | null
-          id: string
-          metadata: Json | null
-          payment_method: string | null
-          reference: string
-          status: string
-          type: string
-          user_id: string
-        }
-        Insert: {
-          amount: number
-          created_at?: string | null
-          id?: string
-          metadata?: Json | null
-          payment_method?: string | null
-          reference: string
-          status?: string
-          type: string
           user_id: string
         }
         Update: {
-          amount?: number
-          created_at?: string | null
+          created_at?: string
           id?: string
-          metadata?: Json | null
-          payment_method?: string | null
-          reference?: string
-          status?: string
-          type?: string
+          role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
         }
         Relationships: []
@@ -843,44 +827,101 @@ export type Database = {
       wallets: {
         Row: {
           available_balance: number | null
-          created_at: string | null
+          created_at: string
           currency: string | null
           id: string
           pending_balance: number | null
           total_earned: number | null
           total_spent: number | null
-          updated_at: string | null
+          updated_at: string
           user_id: string
         }
         Insert: {
           available_balance?: number | null
-          created_at?: string | null
+          created_at?: string
           currency?: string | null
           id?: string
           pending_balance?: number | null
           total_earned?: number | null
           total_spent?: number | null
-          updated_at?: string | null
+          updated_at?: string
           user_id: string
         }
         Update: {
           available_balance?: number | null
-          created_at?: string | null
+          created_at?: string
           currency?: string | null
           id?: string
           pending_balance?: number | null
           total_earned?: number | null
           total_spent?: number | null
-          updated_at?: string | null
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
+      }
+      withdrawals: {
+        Row: {
+          amount: number
+          created_at: string
+          failure_reason: string | null
+          fee: number | null
+          id: string
+          net_amount: number | null
+          payment_method_id: string
+          processed_at: string | null
+          reference: string | null
+          status: Database["public"]["Enums"]["withdrawal_status"] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          failure_reason?: string | null
+          fee?: number | null
+          id?: string
+          net_amount?: number | null
+          payment_method_id: string
+          processed_at?: string | null
+          reference?: string | null
+          status?: Database["public"]["Enums"]["withdrawal_status"] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          failure_reason?: string | null
+          fee?: number | null
+          id?: string
+          net_amount?: number | null
+          payment_method_id?: string
+          processed_at?: string | null
+          reference?: string | null
+          status?: Database["public"]["Enums"]["withdrawal_status"] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "withdrawals_payment_method_id_fkey"
+            columns: ["payment_method_id"]
+            isOneToOne: false
+            referencedRelation: "payment_methods"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      get_user_role: {
+        Args: { _user_id: string }
+        Returns: Database["public"]["Enums"]["app_role"]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -888,25 +929,57 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_dispute_participant: {
+        Args: { _dispute_id: string }
+        Returns: boolean
+      }
+      owns_store: { Args: { _store_id: string }; Returns: boolean }
     }
     Enums: {
-      account_status: "active" | "suspended" | "pending_verification"
-      app_role: "admin" | "seller" | "buyer"
-      product_status: "draft" | "published" | "archived"
-      social_platform: "instagram" | "facebook" | "linkedin"
-      store_status: "inactive" | "active" | "frozen"
+      account_status: "ACTIVE" | "SUSPENDED" | "PENDING_VERIFICATION"
+      app_role: "BUYER" | "SELLER" | "ADMIN"
+      dispute_status:
+        | "OPEN"
+        | "UNDER_REVIEW"
+        | "AWAITING_SELLER"
+        | "AWAITING_BUYER"
+        | "RESOLVED_BUYER"
+        | "RESOLVED_SELLER"
+        | "CLOSED"
+      notification_type:
+        | "PAYMENT_RECEIVED"
+        | "ORDER_ACCEPTED"
+        | "ITEM_SHIPPED"
+        | "DELIVERY_CONFIRMED"
+        | "DISPUTE_OPENED"
+        | "DISPUTE_UPDATE"
+        | "DISPUTE_RESOLVED"
+        | "WITHDRAWAL_PROCESSED"
+        | "LINK_EXPIRED"
+        | "REMINDER"
+      payment_method_type: "MOBILE_MONEY" | "BANK_ACCOUNT"
+      product_status: "DRAFT" | "PUBLISHED" | "ARCHIVED"
+      signup_method: "PHONE_OTP" | "EMAIL_PASSWORD" | "ADMIN_CREATED"
+      social_platform: "INSTAGRAM" | "FACEBOOK" | "LINKEDIN"
+      store_status: "INACTIVE" | "ACTIVE" | "FROZEN"
       transaction_status:
-        | "pending"
-        | "processing"
-        | "paid"
-        | "accepted"
-        | "shipped"
-        | "delivered"
-        | "completed"
-        | "disputed"
-        | "cancelled"
-        | "refunded"
-        | "expired"
+        | "PENDING"
+        | "PROCESSING"
+        | "PAID"
+        | "ACCEPTED"
+        | "SHIPPED"
+        | "DELIVERED"
+        | "COMPLETED"
+        | "DISPUTED"
+        | "CANCELLED"
+        | "REFUNDED"
+        | "EXPIRED"
+      withdrawal_status:
+        | "PENDING"
+        | "PROCESSING"
+        | "COMPLETED"
+        | "FAILED"
+        | "CANCELLED"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1034,23 +1107,53 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      account_status: ["active", "suspended", "pending_verification"],
-      app_role: ["admin", "seller", "buyer"],
-      product_status: ["draft", "published", "archived"],
-      social_platform: ["instagram", "facebook", "linkedin"],
-      store_status: ["inactive", "active", "frozen"],
+      account_status: ["ACTIVE", "SUSPENDED", "PENDING_VERIFICATION"],
+      app_role: ["BUYER", "SELLER", "ADMIN"],
+      dispute_status: [
+        "OPEN",
+        "UNDER_REVIEW",
+        "AWAITING_SELLER",
+        "AWAITING_BUYER",
+        "RESOLVED_BUYER",
+        "RESOLVED_SELLER",
+        "CLOSED",
+      ],
+      notification_type: [
+        "PAYMENT_RECEIVED",
+        "ORDER_ACCEPTED",
+        "ITEM_SHIPPED",
+        "DELIVERY_CONFIRMED",
+        "DISPUTE_OPENED",
+        "DISPUTE_UPDATE",
+        "DISPUTE_RESOLVED",
+        "WITHDRAWAL_PROCESSED",
+        "LINK_EXPIRED",
+        "REMINDER",
+      ],
+      payment_method_type: ["MOBILE_MONEY", "BANK_ACCOUNT"],
+      product_status: ["DRAFT", "PUBLISHED", "ARCHIVED"],
+      signup_method: ["PHONE_OTP", "EMAIL_PASSWORD", "ADMIN_CREATED"],
+      social_platform: ["INSTAGRAM", "FACEBOOK", "LINKEDIN"],
+      store_status: ["INACTIVE", "ACTIVE", "FROZEN"],
       transaction_status: [
-        "pending",
-        "processing",
-        "paid",
-        "accepted",
-        "shipped",
-        "delivered",
-        "completed",
-        "disputed",
-        "cancelled",
-        "refunded",
-        "expired",
+        "PENDING",
+        "PROCESSING",
+        "PAID",
+        "ACCEPTED",
+        "SHIPPED",
+        "DELIVERED",
+        "COMPLETED",
+        "DISPUTED",
+        "CANCELLED",
+        "REFUNDED",
+        "EXPIRED",
+      ],
+      withdrawal_status: [
+        "PENDING",
+        "PROCESSING",
+        "COMPLETED",
+        "FAILED",
+        "CANCELLED",
       ],
     },
   },
