@@ -75,7 +75,7 @@ export function DisputeMessaging({ disputeId, userType }: DisputeMessagingProps)
       .order('created_at', { ascending: true });
 
     if (!error && data) {
-      setMessages(data as Message[]);
+      setMessages(data as unknown as Message[]);
     }
     setLoading(false);
   };

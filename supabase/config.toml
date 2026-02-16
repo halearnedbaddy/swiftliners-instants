@@ -53,3 +53,6 @@ verify_jwt = false
 
 [functions.review-requests-job]
 verify_jwt = false
+
+[functions.pesapal-api]
+verify_jwt = false

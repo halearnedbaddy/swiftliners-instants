@@ -6,26 +6,26 @@
 import { supabase } from "@/integrations/supabase/client";
 import { SUPABASE_ANON_KEY, SUPABASE_URL } from "@/lib/supabaseProject";
 
-// Database enum types (lowercase as defined in Supabase schema)
+// Database enum types (UPPERCASE as defined in Supabase schema)
 type TransactionStatusDb =
-  | "pending"
-  | "processing"
-  | "paid"
-  | "accepted"
-  | "shipped"
-  | "delivered"
-  | "completed"
-  | "disputed"
-  | "cancelled"
-  | "refunded"
-  | "expired";
+  | "PENDING"
+  | "PROCESSING"
+  | "PAID"
+  | "ACCEPTED"
+  | "SHIPPED"
+  | "DELIVERED"
+  | "COMPLETED"
+  | "DISPUTED"
+  | "CANCELLED"
+  | "REFUNDED"
+  | "EXPIRED";
 
-type StoreStatusDb = "inactive" | "active" | "frozen";
-type ProductStatusDb = "draft" | "published" | "archived";
-type SocialPlatformDb = "instagram" | "facebook" | "linkedin";
+type StoreStatusDb = "INACTIVE" | "ACTIVE" | "FROZEN";
+type ProductStatusDb = "DRAFT" | "PUBLISHED" | "ARCHIVED";
+type SocialPlatformDb = "INSTAGRAM" | "FACEBOOK" | "LINKEDIN";
 
-function toLowerEnum<T extends string>(value: string): T {
-  return value.trim().toLowerCase().replace(/ /g, '_') as T;
+function toUpperEnum<T extends string>(value: string): T {
+  return value.trim().toUpperCase().replace(/ /g, '_') as T;
 }
 
 interface ApiResponse<T = unknown> {
@@ -126,7 +126,7 @@ export async function getBuyerOrders(params: { status?: string; page?: number; l
     .range((page - 1) * limit, page * limit - 1);
 
   if (params.status) {
-    query = query.eq("status", toLowerEnum<TransactionStatusDb>(params.status));
+    query = query.eq("status", toUpperEnum<TransactionStatusDb>(params.status));
   }
 
   const { data, error, count } = await query;
@@ -261,7 +261,7 @@ export async function openDispute(transactionId: string, reason: string) {
   // Update transaction status
   await supabase
     .from("transactions")
-    .update({ status: "disputed" as TransactionStatusDb })
+    .update({ status: "DISPUTED" as TransactionStatusDb })
     .eq("id", transactionId);
 
   return { success: true, data };
@@ -284,7 +284,7 @@ export async function getSellerOrders(params: { status?: string; page?: number; 
     .range((page - 1) * limit, page * limit - 1);
 
   if (params.status) {
-    query = query.eq("status", toLowerEnum<TransactionStatusDb>(params.status));
+    query = query.eq("status", toUpperEnum<TransactionStatusDb>(params.status));
   }
 
   const { data, error, count } = await query;
@@ -340,14 +340,14 @@ export async function getSellerStats() {
   // Get seller profile from profiles table
   // Get seller profile from seller_profiles table
   const { data: sellerProfile } = await supabase
-    .from("seller_profiles")
+    .from("profiles")
     .select("business_name, rating, total_reviews")
     .eq("user_id", userId)
     .maybeSingle();
 
   const orderList = orders || [];
   const total = orderList.length;
-  const completed = orderList.filter((o: any) => o.status === "completed" || o.status === "delivered").length;
+  const completed = orderList.filter((o: any) => o.status === "COMPLETED" || o.status === "DELIVERED").length;
   const pending = orderList.filter((o: any) => o.status === "pending" || o.status === "paid").length;
   const disputed = orderList.filter((o: any) => o.status === "disputed").length;
 
@@ -383,7 +383,7 @@ export async function acceptOrder(orderId: string) {
   const { data, error } = await supabase
     .from("transactions")
     .update({
-      status: "accepted" as TransactionStatusDb,
+      status: "ACCEPTED" as TransactionStatusDb,
       accepted_at: new Date().toISOString(),
     })
     .eq("id", orderId)
@@ -405,7 +405,7 @@ export async function rejectOrder(orderId: string, reason?: string) {
   const { data, error } = await supabase
     .from("transactions")
     .update({
-      status: "cancelled" as TransactionStatusDb,
+      status: "CANCELLED" as TransactionStatusDb,
       rejection_reason: reason,
       rejected_at: new Date().toISOString(),
     })
@@ -433,7 +433,7 @@ export async function addShippingInfo(orderId: string, data: {
   const { data: updated, error } = await supabase
     .from("transactions")
     .update({
-      status: "shipped" as TransactionStatusDb,
+      status: "SHIPPED" as TransactionStatusDb,
       courier_name: data.courierName,
       tracking_number: data.trackingNumber,
       estimated_delivery_date: data.estimatedDeliveryDate,
@@ -478,10 +478,10 @@ export async function createStore(data: { name: string; slug: string }) {
   const { data: store, error } = await supabase
     .from("stores")
     .insert([{
-      seller_id: session.user.id,
+      user_id: session.user.id,
       name: data.name,
       slug: data.slug,
-      status: "inactive",
+      status: "INACTIVE" as StoreStatusDb,
       visibility: "PRIVATE",
     }])
     .select()
@@ -759,7 +759,7 @@ export async function connectSocialPage(data: {
     .from("social_accounts")
     .insert([{
       store_id: store.id,
-      platform: toLowerEnum<SocialPlatformDb>(data.platform),
+      platform: toUpperEnum<SocialPlatformDb>(data.platform),
       page_url: data.pageUrl,
       page_id: data.pageId,
     }])
@@ -1727,7 +1727,7 @@ export async function listDraftProducts() {
     .from("products")
     .select("*")
     .eq("store_id", store.id)
-    .eq("status", "draft")
+    .eq("status", "DRAFT")
     .order("updated_at", { ascending: false });
 
   if (error) {
@@ -1755,7 +1755,7 @@ export async function listPublishedProducts() {
     .from("products")
     .select("*")
     .eq("store_id", store.id)
-    .eq("status", "published")
+    .eq("status", "PUBLISHED")
     .order("updated_at", { ascending: false });
 
   if (error) {
