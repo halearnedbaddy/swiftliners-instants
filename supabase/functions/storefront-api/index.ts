@@ -615,7 +615,19 @@ Deno.serve(async (req) => {
         });
       }
 
-      // seller_id from store is sufficient for transactions
+      // Look up the seller's account_id (required NOT NULL on transactions)
+      const { data: sellerAccount } = await supabase
+        .from("accounts")
+        .select("id")
+        .eq("user_id", store.seller_id)
+        .maybeSingle();
+
+      if (!sellerAccount) {
+        return new Response(JSON.stringify({ success: false, error: "Seller account not found" }), {
+          status: 404,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
 
       // Get buyer user id if authenticated
       const buyerUserId = await getUserFromRequest(req);
@@ -653,7 +665,8 @@ Deno.serve(async (req) => {
         .from("transactions")
         .insert({
           id: transactionId,
-          seller_id: store.seller_id,
+          account_id: sellerAccount.id,   // required NOT NULL — seller's account
+          seller_id: store.seller_id,     // seller's user id for RLS queries
           buyer_id: buyerUserId || null,
           product_id: productId,
           item_name: product.name,
@@ -668,12 +681,15 @@ Deno.serve(async (req) => {
           payment_method: paymentMethod || "PENDING_CONFIRMATION",
           platform_fee: platformFee,
           seller_payout: sellerPayout,
-          status: "pending",
+          status: "PENDING",
         })
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Checkout insert error:", error);
+        throw error;
+      }
 
       return new Response(JSON.stringify({
         success: true,
