@@ -277,22 +277,39 @@ export async function getSellerOrders(params: { status?: string; page?: number; 
   const page = params.page || 1;
   const limit = params.limit || 20;
 
+  // First get the seller's account_id for the OR query
+  const { data: account } = await supabase
+    .from("accounts")
+    .select("id")
+    .eq("user_id", session.user.id)
+    .maybeSingle();
+
+  const accountId = (account as any)?.id;
+
+  // Build filter: transactions where this user is the seller (by user id OR account id)
   let query = supabase
     .from("transactions")
     .select("*", { count: "exact" })
-    .eq("seller_id", session.user.id)
+    .or(
+      accountId
+        ? `seller_id.eq.${session.user.id},account_id.eq.${accountId}`
+        : `seller_id.eq.${session.user.id}`
+    )
     .order("created_at", { ascending: false })
     .range((page - 1) * limit, page * limit - 1);
 
   if (params.status && params.status !== 'all') {
-    query = query.eq("status", toLowerEnum<TransactionStatusDb>(params.status));
+    // Accept both uppercase and lowercase status values
+    const statusVal = params.status.toUpperCase();
+    query = query.eq("status", statusVal);
   }
 
   const { data, error, count } = await query;
 
   console.log("[SellerDashboard] Raw Supabase orders response:", { 
-    userId: session.user.id, 
-    data, 
+    userId: session.user.id,
+    accountId,
+    data,
     error, 
     count,
     statusFilter: params.status || 'none'
@@ -312,12 +329,20 @@ export async function getSellerOrders(params: { status?: string; page?: number; 
       name: tx.buyer_name || "Guest",
       phone: tx.buyer_phone || "",
     },
+    buyerName: tx.buyer_name,
+    buyerPhone: tx.buyer_phone,
+    buyerEmail: tx.buyer_email,
     createdAt: tx.created_at,
     updatedAt: tx.updated_at,
     acceptedAt: tx.accepted_at,
     shippedAt: tx.shipped_at,
     courierName: tx.courier_name,
     trackingNumber: tx.tracking_number,
+    shippingInfo: tx.courier_name ? {
+      courierName: tx.courier_name,
+      trackingNumber: tx.tracking_number,
+      estimatedDelivery: tx.estimated_delivery_date,
+    } : undefined,
   }));
 
   return {
