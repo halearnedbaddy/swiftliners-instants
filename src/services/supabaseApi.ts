@@ -415,14 +415,14 @@ export async function acceptOrder(orderId: string) {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) return { success: false, error: "Not authenticated" };
 
+  // Update by id — RLS policy will enforce seller ownership (seller_id OR account_id)
   const { data, error } = await supabase
     .from("transactions")
     .update({
-      status: "accepted" as TransactionStatusDb,
+      status: "ACCEPTED",
       accepted_at: new Date().toISOString(),
     })
     .eq("id", orderId)
-    .eq("seller_id", session.user.id)
     .select()
     .single();
 
@@ -440,12 +440,11 @@ export async function rejectOrder(orderId: string, reason?: string) {
   const { data, error } = await supabase
     .from("transactions")
     .update({
-      status: "cancelled" as TransactionStatusDb,
+      status: "CANCELLED",
       rejection_reason: reason,
       rejected_at: new Date().toISOString(),
     })
     .eq("id", orderId)
-    .eq("seller_id", session.user.id)
     .select()
     .single();
 
@@ -468,7 +467,7 @@ export async function addShippingInfo(orderId: string, data: {
   const { data: updated, error } = await supabase
     .from("transactions")
     .update({
-      status: "shipped" as TransactionStatusDb,
+      status: "SHIPPED",
       courier_name: data.courierName,
       tracking_number: data.trackingNumber,
       estimated_delivery_date: data.estimatedDeliveryDate,
@@ -476,7 +475,6 @@ export async function addShippingInfo(orderId: string, data: {
       shipped_at: new Date().toISOString(),
     })
     .eq("id", orderId)
-    .eq("seller_id", session.user.id)
     .select()
     .single();
 
