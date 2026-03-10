@@ -274,6 +274,30 @@ Deno.serve(async (req) => {
         break;
       }
 
+      case 'order_accepted': {
+        const { transactionId: txId } = body;
+
+        const { data: tx } = await supabase
+          .from('transactions')
+          .select('buyer_phone, buyer_name, item_name, amount, currency, seller_id')
+          .eq('id', txId)
+          .single();
+
+        if (tx?.buyer_phone) {
+          const currency = tx.currency || 'KES';
+          const amount = tx.amount || 0;
+          const item = tx.item_name || 'your item';
+          const shortId = txId.slice(0, 8).toUpperCase();
+          await sendSMS(
+            tx.buyer_phone,
+            `✅ PayLoom: Your order #${shortId} for "${item}" (${currency} ${amount}) has been accepted by the seller! You'll be notified once it ships. Track: ${FRONTEND_URL}/track/${txId}`,
+            'order_accepted',
+            { transactionId: txId }
+          );
+        }
+        break;
+      }
+
       default:
         return new Response(
           JSON.stringify({ success: false, error: 'Unknown action' }),
