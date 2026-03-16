@@ -349,7 +349,7 @@ export function StoreOrders() {
           o.id === shippingModal.id
             ? {
                 ...o,
-                status: 'SHIPPED',
+                status: 'shipped',
                 shippingInfo: {
                   courierName: shippingForm.courierName,
                   trackingNumber: shippingForm.trackingNumber,
