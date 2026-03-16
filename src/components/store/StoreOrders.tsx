@@ -325,7 +325,7 @@ export function StoreOrders() {
     const res = await apiRejectOrder(orderId, 'Seller rejected order');
     if (res.success) {
       setOrders((prev) =>
-        prev.map((o) => (o.id === orderId ? { ...o, status: 'CANCELLED' } : o))
+        prev.map((o) => (o.id === orderId ? { ...o, status: 'cancelled' } : o))
       );
       toast({ title: 'Order rejected' });
     } else {
