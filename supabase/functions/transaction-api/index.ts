@@ -78,8 +78,8 @@ Deno.serve(async (req: Request) => {
         );
       }
 
-      const status = String(tx.status || "").toUpperCase();
-      if (["CANCELLED", "COMPLETED", "DELIVERED", "SHIPPED"].includes(status)) {
+      const statusLower = String(tx.status || "").toLowerCase();
+      if (["cancelled", "completed", "delivered", "shipped"].includes(statusLower)) {
         return new Response(
           JSON.stringify({ success: false, error: "Order cannot be accepted in its current status", code: "INVALID_STATUS" }),
           { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -89,7 +89,7 @@ Deno.serve(async (req: Request) => {
       const { data: updated, error: updateError } = await supabase
         .from("transactions")
         .update({
-          status: "ACCEPTED",
+          status: "accepted",
           accepted_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         })
