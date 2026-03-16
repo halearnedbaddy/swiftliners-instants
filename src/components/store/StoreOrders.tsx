@@ -316,7 +316,8 @@ export function StoreOrders() {
   const handleReject = async (orderId: string) => {
     // Block rejecting an already-accepted order
     const order = orders.find((o) => o.id === orderId);
-    if (order && ['ACCEPTED', 'accepted', 'SHIPPED', 'shipped', 'DELIVERED', 'delivered', 'COMPLETED', 'completed'].includes(order.status)) {
+    const st = (order?.status || '').toLowerCase();
+    if (order && ['accepted', 'shipped', 'delivered', 'completed'].includes(st)) {
       toast({ title: 'Cannot reject this order', description: 'This order has already been accepted.', variant: 'destructive' });
       return;
     }
