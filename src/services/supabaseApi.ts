@@ -305,8 +305,8 @@ export async function getSellerOrders(params: { status?: string; page?: number; 
     .range((page - 1) * limit, page * limit - 1);
 
   if (params.status && params.status !== 'all') {
-    // Accept both uppercase and lowercase status values
-    const statusVal = params.status.toUpperCase();
+    // Use lowercase to match DB schema
+    const statusVal = params.status.toLowerCase();
     query = query.eq("status", statusVal);
   }
 
@@ -448,7 +448,7 @@ export async function addShippingInfo(orderId: string, data: {
   const { data: updated, error } = await supabase
     .from("transactions")
     .update({
-      status: "SHIPPED",
+      status: "shipped",
       courier_name: data.courierName,
       tracking_number: data.trackingNumber,
       estimated_delivery_date: data.estimatedDeliveryDate,

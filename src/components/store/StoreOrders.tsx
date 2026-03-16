@@ -76,8 +76,9 @@ const OrderRow = memo(function OrderRow({
   order, isExpanded, actionLoading, onToggleExpand, onAccept, onReject, onShip, formatCurrency, formatDate,
 }: OrderRowProps) {
   const statusConfig = STATUS_CONFIG[order.status] || { label: order.status, color: 'text-gray-700', bgColor: 'bg-gray-100' };
-  const needsAction = ['PAID', 'paid', 'PENDING', 'pending'].includes(order.status);
-  const canShip = ['ACCEPTED', 'accepted'].includes(order.status);
+  const statusNorm = (order.status || '').toLowerCase();
+  const needsAction = ['paid', 'pending'].includes(statusNorm);
+  const canShip = statusNorm === 'accepted';
 
   return (
     <div className={`bg-card border rounded-xl transition-all ${needsAction ? 'border-amber-300 shadow-sm shadow-amber-100' : 'border-border'}`}>
@@ -301,7 +302,7 @@ export function StoreOrders() {
     const res = await apiAcceptOrder(orderId);
     if (res.success) {
       setOrders((prev) =>
-        prev.map((o) => (o.id === orderId ? { ...o, status: 'ACCEPTED' } : o))
+        prev.map((o) => (o.id === orderId ? { ...o, status: 'accepted' } : o))
       );
       toast({ title: '✅ Order accepted!' });
       // Fire SMS notification to buyer (non-blocking)
@@ -315,7 +316,8 @@ export function StoreOrders() {
   const handleReject = async (orderId: string) => {
     // Block rejecting an already-accepted order
     const order = orders.find((o) => o.id === orderId);
-    if (order && ['ACCEPTED', 'accepted', 'SHIPPED', 'shipped', 'DELIVERED', 'delivered', 'COMPLETED', 'completed'].includes(order.status)) {
+    const st = (order?.status || '').toLowerCase();
+    if (order && ['accepted', 'shipped', 'delivered', 'completed'].includes(st)) {
       toast({ title: 'Cannot reject this order', description: 'This order has already been accepted.', variant: 'destructive' });
       return;
     }
@@ -323,7 +325,7 @@ export function StoreOrders() {
     const res = await apiRejectOrder(orderId, 'Seller rejected order');
     if (res.success) {
       setOrders((prev) =>
-        prev.map((o) => (o.id === orderId ? { ...o, status: 'CANCELLED' } : o))
+        prev.map((o) => (o.id === orderId ? { ...o, status: 'cancelled' } : o))
       );
       toast({ title: 'Order rejected' });
     } else {
@@ -347,7 +349,7 @@ export function StoreOrders() {
           o.id === shippingModal.id
             ? {
                 ...o,
-                status: 'SHIPPED',
+                status: 'shipped',
                 shippingInfo: {
                   courierName: shippingForm.courierName,
                   trackingNumber: shippingForm.trackingNumber,
