@@ -68,10 +68,11 @@ Deno.serve(async (req) => {
 
       // Check if store is active (allow both 'active' and 'ACTIVE' for compatibility)
       const storeStatus = storeOnly.status?.toLowerCase();
-      if (storeStatus !== 'active' && storeStatus !== null) {
+      if (storeStatus !== 'active') {
         return new Response(JSON.stringify({ 
           success: false, 
-          error: "This store is not yet active. The seller needs to activate it first." 
+          error: "This store is not yet active. The seller needs to activate it first.",
+          code: "STORE_INACTIVE"
         }), {
           status: 403,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
