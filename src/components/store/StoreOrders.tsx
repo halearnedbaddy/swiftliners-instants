@@ -351,12 +351,13 @@ export function StoreOrders() {
       return;
     }
 
-    setActionLoading(shippingModal.id);
-    const res = await apiAddShippingInfo(shippingModal.id, shippingForm);
+    const orderId = shippingModal.id;
+    setActionLoading(orderId);
+    const res = await apiAddShippingInfo(orderId, shippingForm);
     if (res.success) {
       setOrders((prev) =>
         prev.map((o) =>
-          o.id === shippingModal.id
+          o.id === orderId
             ? {
                 ...o,
                 status: 'shipped',
@@ -372,6 +373,8 @@ export function StoreOrders() {
       toast({ title: '📦 Shipping info added!' });
       setShippingModal(null);
       setShippingForm({ courierName: '', trackingNumber: '', estimatedDeliveryDate: '' });
+      // Fire SMS notification to buyer (non-blocking)
+      sendOrderShippedSMS(orderId, shippingForm.trackingNumber, toast);
     } else {
       toast({ title: 'Failed to add shipping info', description: res.error, variant: 'destructive' });
     }
