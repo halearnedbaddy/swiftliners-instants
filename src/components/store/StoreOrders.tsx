@@ -56,7 +56,17 @@ async function sendOrderAcceptedSMS(transactionId: string, toast: any) {
     toast({ title: '📱 SMS sent to buyer', description: 'Buyer has been notified of the acceptance.' });
   } catch (e) {
     console.warn('SMS notification failed (non-critical):', e);
-    toast({ title: '⚠️ SMS failed', description: 'Order accepted, but SMS notification could not be sent.', variant: 'destructive' });
+  }
+}
+
+async function sendOrderShippedSMS(transactionId: string, trackingNumber: string, toast: any) {
+  try {
+    await supabase.functions.invoke('sms-notifications', {
+      body: { action: 'order_shipped', transactionId, trackingNumber },
+    });
+    toast({ title: '📱 SMS sent to buyer', description: 'Buyer has been notified that their order has shipped.' });
+  } catch (e) {
+    console.warn('SMS shipped notification failed (non-critical):', e);
   }
 }
 // Memoized Order Row component to prevent unnecessary re-renders
@@ -341,12 +351,13 @@ export function StoreOrders() {
       return;
     }
 
-    setActionLoading(shippingModal.id);
-    const res = await apiAddShippingInfo(shippingModal.id, shippingForm);
+    const orderId = shippingModal.id;
+    setActionLoading(orderId);
+    const res = await apiAddShippingInfo(orderId, shippingForm);
     if (res.success) {
       setOrders((prev) =>
         prev.map((o) =>
-          o.id === shippingModal.id
+          o.id === orderId
             ? {
                 ...o,
                 status: 'shipped',
@@ -362,6 +373,8 @@ export function StoreOrders() {
       toast({ title: '📦 Shipping info added!' });
       setShippingModal(null);
       setShippingForm({ courierName: '', trackingNumber: '', estimatedDeliveryDate: '' });
+      // Fire SMS notification to buyer (non-blocking)
+      sendOrderShippedSMS(orderId, shippingForm.trackingNumber, toast);
     } else {
       toast({ title: 'Failed to add shipping info', description: res.error, variant: 'destructive' });
     }
