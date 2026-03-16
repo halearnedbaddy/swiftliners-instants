@@ -76,8 +76,9 @@ const OrderRow = memo(function OrderRow({
   order, isExpanded, actionLoading, onToggleExpand, onAccept, onReject, onShip, formatCurrency, formatDate,
 }: OrderRowProps) {
   const statusConfig = STATUS_CONFIG[order.status] || { label: order.status, color: 'text-gray-700', bgColor: 'bg-gray-100' };
-  const needsAction = ['PAID', 'paid', 'PENDING', 'pending'].includes(order.status);
-  const canShip = ['ACCEPTED', 'accepted'].includes(order.status);
+  const statusNorm = (order.status || '').toLowerCase();
+  const needsAction = ['paid', 'pending'].includes(statusNorm);
+  const canShip = statusNorm === 'accepted';
 
   return (
     <div className={`bg-card border rounded-xl transition-all ${needsAction ? 'border-amber-300 shadow-sm shadow-amber-100' : 'border-border'}`}>
