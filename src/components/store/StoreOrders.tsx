@@ -302,7 +302,7 @@ export function StoreOrders() {
     const res = await apiAcceptOrder(orderId);
     if (res.success) {
       setOrders((prev) =>
-        prev.map((o) => (o.id === orderId ? { ...o, status: 'ACCEPTED' } : o))
+        prev.map((o) => (o.id === orderId ? { ...o, status: 'accepted' } : o))
       );
       toast({ title: '✅ Order accepted!' });
       // Fire SMS notification to buyer (non-blocking)
