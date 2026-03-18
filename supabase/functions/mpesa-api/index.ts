@@ -811,6 +811,260 @@ serve(async (req) => {
       );
     }
 
+    // ===== API #4: ACCOUNT BALANCE - Query Till balance =====
+    if (action === "account-balance" && req.method === "POST") {
+      const authHeader = req.headers.get("Authorization");
+      if (!authHeader) {
+        return new Response(
+          JSON.stringify({ success: false, error: "Unauthorized" }),
+          { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      try {
+        const shortcode = Deno.env.get("MPESA_SHORTCODE");
+        const initiatorName = Deno.env.get("MPESA_INITIATOR_NAME");
+        const securityCredential = Deno.env.get("MPESA_SECURITY_CREDENTIAL");
+
+        if (!shortcode || !initiatorName || !securityCredential) {
+          throw new Error("M-Pesa account balance credentials not configured");
+        }
+
+        const token = await getAccessToken();
+        const resultUrl = `${supabaseUrl}/functions/v1/mpesa-api/webhook/balance-result`;
+        const timeoutUrl = `${supabaseUrl}/functions/v1/mpesa-api/webhook/timeout`;
+
+        const payload = {
+          Initiator: initiatorName,
+          SecurityCredential: securityCredential,
+          CommandID: "AccountBalance",
+          PartyA: shortcode,
+          IdentifierType: "4", // 4 = Paybill/Till
+          Remarks: "PayLoom balance check",
+          QueueTimeOutURL: timeoutUrl,
+          ResultURL: resultUrl,
+        };
+
+        const response = await fetch(
+          `${MPESA_BASE_URL}/mpesa/accountbalance/v1/query`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+          }
+        );
+
+        const data = await response.json();
+        console.log("📊 Account Balance query response:", JSON.stringify(data));
+
+        if (data.ResponseCode === "0") {
+          return new Response(
+            JSON.stringify({
+              success: true,
+              message: "Balance query submitted. Result arrives via webhook.",
+              conversationId: data.ConversationID,
+            }),
+            { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        } else {
+          throw new Error(data.ResponseDescription || "Balance query failed");
+        }
+      } catch (error) {
+        console.error("Account balance error:", error);
+        return new Response(
+          JSON.stringify({ success: false, error: error instanceof Error ? error.message : "Balance query failed" }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    }
+
+    // ===== Account Balance Result Webhook =====
+    if (url.pathname.includes("/webhook/balance-result") && req.method === "POST") {
+      console.log("📥 M-Pesa Account Balance Result received");
+      const body = await req.json();
+      const { Result } = body;
+
+      if (Result?.ResultCode === 0) {
+        const params = Result?.ResultParameters?.ResultParameter || [];
+        const balanceString = params.find((p: any) => p.Key === "AccountBalance")?.Value || "";
+
+        // Parse "Working Account|KES|50000.00|50000.00|0.00|0.00"
+        const parts = balanceString.split("|");
+        const availableBalance = parseFloat(parts[2] || "0");
+        const currentBalance = parseFloat(parts[3] || "0");
+        const reservedBalance = parseFloat(parts[4] || "0");
+        const currency = parts[1] || "KES";
+
+        const shortcode = Deno.env.get("MPESA_SHORTCODE") || "";
+
+        await supabase.from("mpesa_account_balances").insert({
+          shortcode,
+          available_balance: availableBalance,
+          current_balance: currentBalance,
+          reserved_balance: reservedBalance,
+          currency,
+          raw_balance_string: balanceString,
+          checked_at: new Date().toISOString(),
+        });
+
+        console.log(`✅ Till balance saved: KES ${availableBalance} available`);
+      }
+
+      return new Response(JSON.stringify({ ResultCode: 0, ResultDesc: "Accepted" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // ===== API #2: C2B URL Registration (one-time setup per environment) =====
+    if (action === "register-c2b" && req.method === "POST") {
+      const authHeader = req.headers.get("Authorization");
+      if (!authHeader) {
+        return new Response(
+          JSON.stringify({ success: false, error: "Unauthorized" }),
+          { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      try {
+        const shortcode = Deno.env.get("MPESA_SHORTCODE");
+        if (!shortcode) throw new Error("MPESA_SHORTCODE not configured");
+
+        const token = await getAccessToken();
+        const confirmationUrl = `${supabaseUrl}/functions/v1/mpesa-api/webhook/c2b-confirmation`;
+        const validationUrl = `${supabaseUrl}/functions/v1/mpesa-api/webhook/c2b-validation`;
+
+        const response = await fetch(
+          `${MPESA_BASE_URL}/mpesa/c2b/v2/registerurl`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              ShortCode: shortcode,
+              ResponseType: "Completed",
+              ConfirmationURL: confirmationUrl,
+              ValidationURL: validationUrl,
+            }),
+          }
+        );
+
+        const data = await response.json();
+        console.log("📋 C2B Registration response:", JSON.stringify(data));
+
+        return new Response(
+          JSON.stringify({ success: true, data }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      } catch (error) {
+        console.error("C2B registration error:", error);
+        return new Response(
+          JSON.stringify({ success: false, error: error instanceof Error ? error.message : "C2B registration failed" }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    }
+
+    // ===== C2B Validation Webhook (Safaricom calls before confirming payment) =====
+    if (url.pathname.includes("/webhook/c2b-validation") && req.method === "POST") {
+      console.log("📥 C2B Validation received");
+      // Always return 0 to accept. Reject with ResultCode: C2B001 to decline.
+      return new Response(
+        JSON.stringify({ ResultCode: "0", ResultDesc: "Accepted" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // ===== C2B Confirmation Webhook (Safaricom confirms payment received) =====
+    if (url.pathname.includes("/webhook/c2b-confirmation") && req.method === "POST") {
+      console.log("📥 C2B Confirmation received");
+      const body = await req.json();
+
+      const {
+        TransID,
+        TransAmount,
+        MSISDN,
+        BillRefNumber,
+        TransTime,
+        FirstName,
+        LastName,
+      } = body;
+
+      console.log(`✅ C2B Payment: ${TransID}, KES ${TransAmount}, from ${MSISDN}, Ref: ${BillRefNumber}`);
+
+      // Record in mpesa_transactions
+      await supabase.from("mpesa_transactions").insert({
+        order_id: BillRefNumber,
+        transaction_type: "c2b",
+        phone_number: MSISDN,
+        amount: parseFloat(TransAmount),
+        status: "completed",
+        mpesa_receipt_number: TransID,
+        raw_request: body,
+        completed_at: new Date().toISOString(),
+      });
+
+      // Find matching subscription or transaction by BillRefNumber
+      const { data: transaction } = await supabase
+        .from("transactions")
+        .select("id, seller_id, item_name, buyer_phone")
+        .eq("id", BillRefNumber)
+        .maybeSingle();
+
+      if (transaction) {
+        await supabase
+          .from("transactions")
+          .update({
+            status: "paid",
+            payment_method: "mpesa",
+            payment_reference: TransID,
+          })
+          .eq("id", BillRefNumber);
+      }
+
+      // Check if this is a subscription payment (BillRefNumber starts with SUB-)
+      if (BillRefNumber?.startsWith("SUB-")) {
+        const userId = BillRefNumber.replace("SUB-", "");
+        // Activate the pending subscription for this user
+        const { data: pendingSub } = await supabase
+          .from("subscriptions")
+          .select("id, plan")
+          .eq("user_id", userId)
+          .eq("status", "pending")
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (pendingSub) {
+          const now = new Date();
+          const expiresAt = new Date(now);
+          expiresAt.setMonth(expiresAt.getMonth() + 1);
+
+          await supabase
+            .from("subscriptions")
+            .update({
+              status: "active",
+              paid_at: now.toISOString(),
+              started_at: now.toISOString(),
+              expires_at: expiresAt.toISOString(),
+              mpesa_transaction_id: TransID,
+            })
+            .eq("id", pendingSub.id);
+
+          console.log(`✅ Subscription activated for user ${userId}: ${pendingSub.plan}`);
+        }
+      }
+
+      return new Response(
+        JSON.stringify({ ResultCode: "0", ResultDesc: "Accepted" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     return new Response(
       JSON.stringify({ success: false, error: "Unknown endpoint" }),
       { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
