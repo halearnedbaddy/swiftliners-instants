@@ -11,3 +11,7 @@ verify_jwt = false
 
 [functions.push-notifications]
 verify_jwt = false
+
+[functions.payment-api]
+verify_jwt = false
+
